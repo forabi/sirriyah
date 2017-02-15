@@ -1,5 +1,5 @@
 export type Props = {
-  userProfile: UserProfile | null;
+  hello: string;
 };
 
 export default Props;

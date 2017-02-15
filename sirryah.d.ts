@@ -2,7 +2,7 @@ type MessageType = 'incoming' | 'outgoing';
 
 type MessageStatus = {
   incoming: 'decrypting' | 'unread' | 'read';
-  outgoing: 'encrypting' | 'sending' | 'sent' | 'delivered' | 'seen';
+  outgoing: 'unsent' | 'encrypting' | 'sending' | 'sent' | 'delivered' | 'seen';
 };
 
 type LocalMessage<T extends MessageType> = {
@@ -13,10 +13,7 @@ type LocalMessage<T extends MessageType> = {
   status: MessageStatus[T];
 }
 
-type SentMessage = LocalMessage<'outgoing'> & {
-  id: string;
-  status: 'sent';
-}
+type MessageWithStatus<T extends MessageType, S extends MessageStatus[T]> = LocalMessage<T> & { status: S };
 
 type UserProfile = {
   email: string;
@@ -31,9 +28,7 @@ type StoreState = {
   userProfile: UserProfile | null;
   publicKey: Blob | null;
   inMemoryMessages: {
-    byId: {
-      [id: string]: LocalMessage<MessageType>;
-    };
+    [id: string]: LocalMessage<MessageType>;
   };
 };
 
@@ -71,13 +66,17 @@ type Events = {
   LOGIN_FAILED: GenericError & {
     fields: Record<keyof LoginForm, GenericError>;
   };
-  SEND_MESSAGE_REQUESTED: LocalMessage<'outgoing'>;
+  SEND_MESSAGE_REQUESTED: MessageWithStatus<'outgoing', 'unsent'>;
   SEND_MESSAGE_FAILED: GenericError & Pick<LocalMessage<'outgoing'>, 'localId'>;
-  SEND_MESSAGE_SUCCEEDED: SentMessage;
+  SEND_MESSAGE_SUCCEEDED: MessageWithStatus<'outgoing', 'sent'>;
+  MESSAGE_DETAILS_CHANGED: Pick<LocalMessage<MessageType>, 'localId' | 'status'>;
   MESSAGE_RECEIVED: LocalMessage<'incoming'>;
   UPDATE_USER_DATA_REQUESTED: Pick<UserProfile, EditableUserData>;
   GENERATE_KEYS_REQUESTED: void;
-  GENERATE_KEYS_SUCCEEDED: CryptoKeyPair;
+  GENERATE_KEYS_SUCCEEDED: {
+    publicKey: Blob;
+    privateKey: Blob;
+  };
   GENERATE_KEYS_FAILED: GenericError;
 }
 

@@ -1,4 +1,3 @@
-// @flow
 const webpack = require('webpack');
 const WebpackHTMLPlugin = require('webpack-html-plugin');
 const BabiliPlugin = require('babili-webpack-plugin');
