@@ -8,10 +8,11 @@ type MessageStatus = {
 type Payloads = {
   encrypted: {
     payload: ArrayBuffer;
+    publicKey: JsonWebKey;
     iv: ArrayBufferView;
   };
   decrypted: {
-    date: Date;
+    date: string;
     text: string;
   };
 }

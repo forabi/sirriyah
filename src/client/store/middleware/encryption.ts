@@ -24,6 +24,7 @@ const middleware: Middleware = ({ getState }: Store<StoreState>) =>
         next(keyPairGenereationFailed(error));
       }
     } else if (isActionOfType(action, 'SEND_MESSAGE_REQUESTED')) {
+      next(action);
       const { message, publicKey } = action.payload;
       const { localId } = message;
       next(updateMessage({ localId, status: 'encrypting' }));
@@ -40,8 +41,12 @@ const middleware: Middleware = ({ getState }: Store<StoreState>) =>
       const state = getState();
       try {
         const privateKey = getPrivateKey(state);
-        const decryptedMessage = await decrypt(message, privateKey!);
-        next(updateMessage({ ...decryptedMessage, localId }));
+        if (privateKey !== null) {
+          const decryptedMessage = await decrypt(message, privateKey);
+          next(updateMessage({ ...decryptedMessage, localId }));
+        } else {
+          throw new TypeError('Missing private key');
+        }
       } catch (error) {
         next(sendFailed({ localId, message: error.message }));
       }

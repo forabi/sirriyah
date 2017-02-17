@@ -1,4 +1,5 @@
 import { blobToArrayBuffer, arrayBufferToString } from 'client/utils';
+import omit from 'lodash/omit';
 
 const format = 'jwk';
 
@@ -21,9 +22,8 @@ export const generateKeyPair = () => {
   ) as Promise<CryptoKeyPair>;
 };
 
-
 export const deriveSharedKey = (privateKey: CryptoKey, publicKey: CryptoKey) => {
-  return window.crypto.subtle.deriveKey(
+  return crypto.subtle.deriveKey(
     { 
       ...algorithms.dh,
       public: publicKey,
@@ -33,27 +33,53 @@ export const deriveSharedKey = (privateKey: CryptoKey, publicKey: CryptoKey) => 
     true,
     ['encrypt', 'decrypt']
   );
+};
+
+export const exportKey = async (key: CryptoKey) => {
+  const k = await crypto.subtle.exportKey(format, key);
+  return omit(k, 'key_ops') as typeof k; // Workaround for Firefox
 }
 
-export const encrypt: Encryptor = async (message, sharedKey) => {
-  const { to, ...rest } = message;
+export const importKey = (key: JsonWebKey) => {
+  return crypto.subtle.importKey(format, key, algorithms.dh, true, []);
+}
+
+export const encrypt: Encryptor = async (message, recipientPublicKey) => {
+  const { to, localId, status, ...rest } = message;
+  const [
+    data,
+    [sharedKey, publicKey],
+  ] = await Promise.all([
+    blobToArrayBuffer(new Blob([JSON.stringify(rest)])),
+    generateKeyPair().then(own => {
+      return Promise.all([
+        deriveSharedKey(own.privateKey, recipientPublicKey),
+        exportKey(own.publicKey),
+      ]);
+    }),
+  ]);
   const iv = crypto.getRandomValues(new Uint32Array(12));
-  const data = await blobToArrayBuffer(new Blob([JSON.stringify(rest)]));
-  const payload = await crypto.subtle.encrypt({
-    name: 'AES-GCM',
-    iv,
-  }, sharedKey, data);
+  const payload = await crypto.subtle.encrypt(
+    {
+      name: 'AES-GCM',
+      iv,
+    },
+    sharedKey,
+    data,
+  );
   return {
-    ...rest,
-    iv,
-    to,
-    payload,
-  }
+    type: 'outgoing',
+    status,
+    localId, to,
+    publicKey, iv, payload,
+  };
 }
 
-export const decrypt: Decryptor = async (message, sharedKey) => {
-  const { payload, iv, ...rest } = message;
+export const decrypt: Decryptor = async (message, ownPrivateKey) => {
+  const { payload, iv, publicKey, ...rest } = message;
   const data = payload;
+  const importedPublicKey = await importKey(publicKey);
+  const sharedKey = await deriveSharedKey(ownPrivateKey, importedPublicKey);
   const buffer = await crypto.subtle.decrypt(
     {
       name: algorithms.aes.name,

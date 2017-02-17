@@ -73,7 +73,7 @@ const config = {
             loader: 'ts-loader',
             query: {
               transpileOnly: env.isHot,
-              silent: !env.isProd,
+              silent: env.isTest,
             },
           },
         ]),

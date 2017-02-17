@@ -34,10 +34,10 @@ const reducerMap: ReducerMap = {
         [payload.localId]: payload,
       };
     },
-    SEND_MESSAGE_REQUESTED: (state, { payload }) => {
+    SEND_MESSAGE_REQUESTED: (state, { payload: { message } }) => {
       return {
         ...state,
-        [payload.localId]: payload,
+        [message.localId]: message,
       };
     },
     MESSAGE_DETAILS_CHANGED: (state, { payload }) => {
@@ -55,5 +55,7 @@ const reducerMap: ReducerMap = {
 const reducer = combineReducers<StoreState>(reducerMap);
 
 export const getPrivateKey = (state: StoreState) => state.privateKey;
+export const getPublicKey = (state: StoreState) => state.publicKey;
+export const getMessages = (state: StoreState) => state.inMemoryMessages;
 
 export default reducer;

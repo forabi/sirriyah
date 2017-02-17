@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for client/store/reducer.ts</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../prettify.css" />
+    <link rel="stylesheet" href="../../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../../index.html">all files</a> / <a href="index.html">client/store/</a> reducer.ts
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">75% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>12/16</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>0/0</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">63.64% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>7/11</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">69.23% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>9/13</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line medium'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { combineReducers } from 'redux';
+&nbsp;
+import { handleActions } from './utils';
+&nbsp;
+const reducerMap: ReducerMap = {
+  userId: handleActions&lt;'userId'&gt;({
+    CREATE_USER_ACCOUNT_SUCCEEDED: (_, { payload: { userId } }<span class="fstat-no" title="function not covered" >) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >      return userId;</span>
+    },
+  }, null),
+  token: handleActions&lt;'token'&gt;({
+    CREATE_USER_ACCOUNT_SUCCEEDED: (_, { payload: { token } }<span class="fstat-no" title="function not covered" >) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >      return token;</span>
+    },
+  }, null),
+  userProfile: handleActions&lt;'userProfile'&gt;({
+    UPDATE_USER_DATA_REQUESTED: (state, { payload }<span class="fstat-no" title="function not covered" >) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >      return {</span>
+        ...state,
+        ...payload,
+      };
+    },
+  }, null),
+  publicKey: handleActions&lt;'publicKey'&gt;({
+    GENERATE_KEYS_SUCCEEDED: (_, { payload: { publicKey } }) =&gt; publicKey,
+  }, null),
+  privateKey: handleActions&lt;'privateKey'&gt;({
+    GENERATE_KEYS_SUCCEEDED: (_, { payload: { privateKey } }) =&gt; privateKey,
+  }, null),
+  inMemoryMessages: handleActions&lt;'inMemoryMessages'&gt;({
+    MESSAGE_RECEIVED: (state, { payload }<span class="fstat-no" title="function not covered" >) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >      return {</span>
+        ...state,
+        [payload.localId]: payload,
+      };
+    },
+    SEND_MESSAGE_REQUESTED: (state, { payload: { message } }) =&gt; {
+      return {
+        ...state,
+        [message.localId]: message,
+      };
+    },
+    MESSAGE_DETAILS_CHANGED: (state, { payload }) =&gt; {
+      return {
+        ...state,
+        [payload.localId]: {
+          ...state[payload.localId],
+          ...payload,
+        },
+      };
+    },
+  }, { }),
+}
+&nbsp;
+const reducer = combineReducers&lt;StoreState&gt;(reducerMap);
+&nbsp;
+export const getPrivateKey = (state: StoreState) =&gt; state.privateKey;
+export const getPublicKey = (state: StoreState) =&gt; state.publicKey;
+export const getMessages = (state: StoreState) =&gt; state.inMemoryMessages;
+&nbsp;
+export default reducer;
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Fri Feb 17 2017 22:17:03 GMT+0200 (EET)
+</div>
+</div>
+<script src="../../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../../sorter.js"></script>
+</body>
+</html>

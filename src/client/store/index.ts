@@ -1,9 +1,17 @@
 import {
   createStore,
+  Store,
   compose,
+  applyMiddleware,
 } from 'redux';
 
 import reducer from './reducer';
+
+import cryptoMiddleware from './middleware/encryption';
+
+const middleware = [
+  cryptoMiddleware,
+];
 
 function addDevTools() {
   if (process.env.NODE_ENV !== 'production' && !!window.devToolsExtension) {
@@ -17,6 +25,7 @@ const createConfiguredStore = () => {
     reducer,
     compose(
       addDevTools(),
+      applyMiddleware(...middleware),
     ),
   );
 
@@ -26,7 +35,7 @@ const createConfiguredStore = () => {
       store.replaceReducer(nextReducer);
     });
   }
-  return store;
+  return store as Store<StoreState>;
 };
 
 export default createConfiguredStore;
