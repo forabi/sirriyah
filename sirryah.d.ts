@@ -1,19 +1,59 @@
 type MessageType = 'incoming' | 'outgoing';
 
 type MessageStatus = {
-  incoming: 'decrypting' | 'unread' | 'read';
+  incoming: 'unprocessed' | 'decrypting' | 'unread' | 'read';
   outgoing: 'unsent' | 'encrypting' | 'sending' | 'sent' | 'delivered' | 'seen';
 };
 
-type LocalMessage<T extends MessageType> = {
-  localId: string;
-  date: Date;
-  text: string;
-  type: T;
-  status: MessageStatus[T];
+type Payloads = {
+  encrypted: {
+    payload: ArrayBuffer;
+    iv: ArrayBufferView;
+  };
+  decrypted: {
+    date: Date;
+    text: string;
+  };
 }
 
-type MessageWithStatus<T extends MessageType, S extends MessageStatus[T]> = LocalMessage<T> & { status: S };
+type MessagePropsByType = {
+  incoming: { };
+  outgoing: {
+    to: string;
+  };
+}
+
+type MessageProps<T extends MessageType> = MessagePropsByType[T];
+
+type EncryptionStatus = 'encrypted' | 'decrypted';
+
+type Payload<S extends EncryptionStatus> = Payloads[S];
+
+type LocalMessage<
+  T extends MessageType,
+  E extends EncryptionStatus
+> = MessageProps<T> & {
+  localId: string;
+  type: T;
+  status: MessageStatus[T];
+} & Payload<E>;
+
+type MessageWithStatus<
+  T extends MessageType,
+  S extends MessageStatus[T],
+  E extends EncryptionStatus
+> = LocalMessage<T, E> & { status: S };
+
+type Encryptor = (
+  message: MessageWithStatus<'outgoing', 'unsent', 'decrypted'>,
+  publicKey: CryptoKey
+) => Promise<MessageWithStatus<'outgoing', 'unsent', 'encrypted'>>;
+
+type Decryptor = (
+  message: MessageWithStatus<'incoming', 'unprocessed', 'encrypted'>,
+  privateKey: CryptoKey
+) => Promise<MessageWithStatus<'incoming', 'unread', 'decrypted'>>;
+
 
 type UserProfile = {
   email: string;
@@ -26,9 +66,10 @@ type StoreState = {
   userId: string | null;
   token: string | null;
   userProfile: UserProfile | null;
-  publicKey: Blob | null;
+  publicKey: CryptoKey | null;
+  privateKey: CryptoKey | null;
   inMemoryMessages: {
-    [id: string]: LocalMessage<MessageType>;
+    [id: string]: LocalMessage<MessageType, EncryptionStatus>;
   };
 };
 
@@ -45,7 +86,7 @@ type SignUpForm = {
   email: string;
   displayName: string;
   password: string;
-  publicKey: Blob;
+  publicKey: JsonWebKey;
 };
 
 type Events = {
@@ -66,16 +107,19 @@ type Events = {
   LOGIN_FAILED: GenericError & {
     fields: Record<keyof LoginForm, GenericError>;
   };
-  SEND_MESSAGE_REQUESTED: MessageWithStatus<'outgoing', 'unsent'>;
-  SEND_MESSAGE_FAILED: GenericError & Pick<LocalMessage<'outgoing'>, 'localId'>;
-  SEND_MESSAGE_SUCCEEDED: MessageWithStatus<'outgoing', 'sent'>;
-  MESSAGE_DETAILS_CHANGED: Pick<LocalMessage<MessageType>, 'localId' | 'status'>;
-  MESSAGE_RECEIVED: LocalMessage<'incoming'>;
+  SEND_MESSAGE_REQUESTED: {
+    publicKey: CryptoKey,
+    message: MessageWithStatus<'outgoing', 'unsent', 'decrypted'>;
+  };
+  SEND_ENCRYPTED_MESSAGE_REQUESTED: MessageWithStatus<'outgoing', 'unsent', 'encrypted'>;
+  SEND_MESSAGE_FAILED: GenericError & Pick<LocalMessage<'outgoing', EncryptionStatus>, 'localId'>;
+  MESSAGE_DETAILS_CHANGED: Pick<LocalMessage<MessageType, EncryptionStatus>, 'localId' | 'status'>;
+  MESSAGE_RECEIVED: MessageWithStatus<'incoming', 'unprocessed', 'encrypted'>;
   UPDATE_USER_DATA_REQUESTED: Pick<UserProfile, EditableUserData>;
   GENERATE_KEYS_REQUESTED: void;
   GENERATE_KEYS_SUCCEEDED: {
-    publicKey: Blob;
-    privateKey: Blob;
+    publicKey: CryptoKey;
+    privateKey: CryptoKey;
   };
   GENERATE_KEYS_FAILED: GenericError;
 }

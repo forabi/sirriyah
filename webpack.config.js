@@ -1,6 +1,7 @@
 const webpack = require('webpack');
 const WebpackHTMLPlugin = require('webpack-html-plugin');
 const BabiliPlugin = require('babili-webpack-plugin');
+const failTests = require('./webpack-fail-tests-plugin');
 const path = require('path');
 const env = require('./env');
 
@@ -10,6 +11,7 @@ const buildPath = env.isProd ? '' : '/';
 
 const hot = p => (env.isHot ? p : null);
 const prod = p => (env.isProd ? p : null);
+const test = p => (env.isTest ? p : null);
 
 const config = {
   bail: env.isProd || env.isTest,
@@ -40,10 +42,28 @@ const config = {
 
   resolve: {
     extensions: ['.webpack.js', '.web.js', '.ts', '.tsx', '.js', '.jsx'],
+    modules: [
+      path.join(__dirname, 'src'),
+      'node_modules',
+    ],
   },
 
   module: {
     rules: [
+      test({
+        enforce: 'post',
+        test: /\.tsx?$/,
+        include: path.resolve(__dirname, 'src'),
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: 'istanbul-instrumenter-loader',
+            query: {
+              esModules: true,
+            },
+          },
+        ],
+      }),
       {
         test: /\.tsx?$/,
         exclude: /node_modules/,
@@ -52,7 +72,8 @@ const config = {
           {
             loader: 'ts-loader',
             query: {
-              transpileOnly: true,
+              transpileOnly: env.isHot,
+              silent: !env.isProd,
             },
           },
         ]),
@@ -66,6 +87,7 @@ const config = {
 
   plugins: compact([
     hot(new webpack.HotModuleReplacementPlugin()),
+    test(failTests),
     new webpack.DefinePlugin({
       __DEBUG__: JSON.stringify(env.isDev),
       'process.env.ENVIRONMENT': JSON.stringify('BROWSER'),

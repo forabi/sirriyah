@@ -1,0 +1,52 @@
+scalar PublicKey
+scalar Date
+scalar Token
+scalar displayName
+scalar Password
+scalar Email
+
+type User {
+  id: ID!
+  publicKey: PublicKey!
+  displayName: DisplayName!
+  joinedOn: Date!
+}
+
+type Message {
+  localId: String!
+  text: String!
+  date: Date!
+}
+
+enum MessageStatus {
+  read
+  delivered
+}
+
+type MessageUpdate {
+  localId: String!
+  status: MessageStatus!
+}
+
+type RootQuery {
+  user(id: ID!): User
+  messages(token: Token!): [Message]
+}
+
+input SignUpInput {
+  displayName: DisplayName!
+  email: Email!
+  password: Password!
+  publicKey: PublicKey!
+}
+
+mutation SignUp($form: SignUpInput!) {
+  signUp()
+}
+
+schema {
+  query: RootQuery
+  mutation: {
+
+  }
+}

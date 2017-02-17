@@ -24,6 +24,9 @@ const reducerMap: ReducerMap = {
   publicKey: handleActions<'publicKey'>({
     GENERATE_KEYS_SUCCEEDED: (_, { payload: { publicKey } }) => publicKey,
   }, null),
+  privateKey: handleActions<'privateKey'>({
+    GENERATE_KEYS_SUCCEEDED: (_, { payload: { privateKey } }) => privateKey,
+  }, null),
   inMemoryMessages: handleActions<'inMemoryMessages'>({
     MESSAGE_RECEIVED: (state, { payload }) => {
       return {
@@ -50,5 +53,7 @@ const reducerMap: ReducerMap = {
 }
 
 const reducer = combineReducers<StoreState>(reducerMap);
+
+export const getPrivateKey = (state: StoreState) => state.privateKey;
 
 export default reducer;

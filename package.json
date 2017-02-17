@@ -4,7 +4,9 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "dev": "HOT=1 NODE_ENV=development webpack-dev-server"
+    "dev": "HOT=1 NODE_ENV=development webpack-dev-server",
+    "test": "NODE_ENV=test karma start --single-run",
+    "test:watch": "NODE_ENV=test karma start --watch --no-single-run"
   },
   "dependencies": {
     "bluebird": "^3.4.7",
